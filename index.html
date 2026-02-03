@@ -293,6 +293,68 @@
             background-color: var(--accent-light);
         }
 
+        /* Регулятор громкости */
+        .volume-control {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .volume-icon {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            min-width: 30px;
+            text-align: center;
+        }
+
+        .volume-slider-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .volume-slider {
+            flex: 1;
+            -webkit-appearance: none;
+            height: 6px;
+            background: #333;
+            border-radius: 3px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .volume-slider::-webkit-slider-thumb:hover {
+            background: var(--accent-light);
+        }
+
+        .volume-slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--accent);
+            cursor: pointer;
+            border: none;
+        }
+
+        .volume-value {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            min-width: 40px;
+            text-align: center;
+        }
+
         /* Прогресс-бар */
         .progress-container {
             margin: 1.5rem 0;
@@ -502,6 +564,16 @@
             .tracklist-items {
                 grid-template-columns: 1fr;
             }
+            
+            .volume-control {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0.5rem;
+            }
+            
+            .volume-slider-container {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -536,8 +608,20 @@
             <!-- Плеер -->
             <div class="player">
                 <div class="track-info">
-                    <h2 class="track-title" id="currentTrackTitle">Песня 1: «Три трупа и палата 201»</h2>
+                    <h2 class="track-title" id="currentTrackTitle">Три трупа и палата 201</h2>
                     <p class="track-event" id="currentTrackEvent">Сессия 1</p>
+                </div>
+
+                <!-- Регулятор громкости -->
+                <div class="volume-control">
+                    <div class="volume-icon">
+                        <i class="fas fa-volume-down" id="volumeIcon"></i>
+                    </div>
+                    <div class="volume-slider-container">
+                        <input type="range" class="volume-slider" id="volumeSlider" 
+                               min="0" max="100" value="70" step="1">
+                        <div class="volume-value" id="volumeValue">70%</div>
+                    </div>
                 </div>
 
                 <div class="controls">
@@ -599,7 +683,6 @@
 
     <script>
         // ========== ДАННЫЕ О ТРЕКАХ ==========
-        // Тексты теперь загружаются из отдельных файлов
         const tracks = [
             {
                 id: 1,
@@ -609,7 +692,7 @@
                 audioFile: "audio/track1.mp3",
                 coverImage: "images/cover1.jpg",
                 session: "Сессия 1",
-                lyricsFile: "lyrics/track1.txt" // Текст загружается из файла
+                lyricsFile: "lyrics/track1.txt"
             },
             {
                 id: 2,
@@ -663,16 +746,49 @@
         const durationEl = document.getElementById('duration');
         const lyricsContent = document.getElementById('lyricsContent');
         const tracklist = document.getElementById('tracklist');
+        
+        // Элементы громкости
+        const volumeSlider = document.getElementById('volumeSlider');
+        const volumeValue = document.getElementById('volumeValue');
+        const volumeIcon = document.getElementById('volumeIcon');
 
         let currentTrackIndex = 0;
         let isPlaying = false;
 
         // ========== ИНИЦИАЛИЗАЦИЯ ==========
         function init() {
+            // Восстанавливаем громкость из localStorage или ставим 70%
+            const savedVolume = localStorage.getItem('dndPlayerVolume');
+            const initialVolume = savedVolume ? parseInt(savedVolume) : 70;
+            volumeSlider.value = initialVolume;
+            updateVolume(initialVolume);
+            
             // Создаем список треков
             renderTracklist();
             // Загружаем первый трек
             loadTrack(currentTrackIndex);
+        }
+
+        // ========== УПРАВЛЕНИЕ ГРОМКОСТЬЮ ==========
+        function updateVolume(value) {
+            // Преобразуем значение 0-100 в 0.0-1.0
+            const volume = value / 100;
+            audioPlayer.volume = volume;
+            volumeValue.textContent = `${value}%`;
+            
+            // Обновляем иконку в зависимости от уровня громкости
+            if (value === 0) {
+                volumeIcon.className = 'fas fa-volume-mute';
+            } else if (value < 30) {
+                volumeIcon.className = 'fas fa-volume-down';
+            } else if (value < 70) {
+                volumeIcon.className = 'fas fa-volume';
+            } else {
+                volumeIcon.className = 'fas fa-volume-up';
+            }
+            
+            // Сохраняем в localStorage
+            localStorage.setItem('dndPlayerVolume', value);
         }
 
         // ========== ОТОБРАЖЕНИЕ СПИСКА ТРЕКОВ ==========
@@ -810,6 +926,26 @@
         nextBtn.addEventListener('click', () => {
             loadTrack(currentTrackIndex + 1);
             playTrack();
+        });
+
+        // Регулятор громкости
+        volumeSlider.addEventListener('input', (e) => {
+            updateVolume(e.target.value);
+        });
+
+        // Клик по иконке громкости для mute/unmute
+        volumeIcon.addEventListener('click', () => {
+            if (audioPlayer.volume > 0) {
+                // Сохраняем текущую громкость
+                volumeSlider.dataset.previousVolume = volumeSlider.value;
+                updateVolume(0);
+                volumeSlider.value = 0;
+            } else {
+                // Восстанавливаем предыдущую громкость
+                const previousVolume = volumeSlider.dataset.previousVolume || 70;
+                updateVolume(previousVolume);
+                volumeSlider.value = previousVolume;
+            }
         });
 
         // Прогресс-бар
