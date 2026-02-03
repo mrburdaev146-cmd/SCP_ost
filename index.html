@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>D&D Саундтрек | Звуковая летопись</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-dark: #0a0a0a;
+            --bg-card: #111111;
+            --accent: #8b0000;
+            --accent-light: #c1121f;
+            --text: #f5f5f5;
+            --text-secondary: #aaa;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Шапка */
+        .header {
+            text-align: center;
+            padding: 2.5rem 1rem;
+            border-bottom: 1px solid rgba(139, 0, 0, 0.3);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            letter-spacing: 3px;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            color: var(--accent-light);
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+            font-style: italic;
+        }
+
+        /* Основной контейнер */
+        .main-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            padding: 2rem 1rem;
+            gap: 3rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        @media (min-width: 992px) {
+            .main-container {
+                flex-direction: row;
+                align-items: flex-start;
+                justify-content: center;
+            }
+        }
+
+        /* Левая колонка - винил и плеер */
+        .vinyl-section {
+            flex: 1;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        /* Виниловая пластинка */
+        .vinyl-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 0 auto;
+        }
+
+        .vinyl {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: radial-gradient(circle at center, #222 0%, #111 70%, #000 100%);
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            border: 15px solid #1a1a1a;
+            transition: transform 0.5s ease;
+        }
+
+        .vinyl.playing {
+            animation: rotate 20s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Кольца на пластинке */
+        .vinyl::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            height: 90%;
+            border-radius: 50%;
+            background: repeating-radial-gradient(
+                circle at center,
+                transparent 0px,
+                transparent 4px,
+                rgba(50, 50, 50, 0.5) 4px,
+                rgba(50, 50, 50, 0.5) 6px
+            );
+        }
+
+        /* Центральная этикетка */
+        .vinyl-label {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background-color: var(--accent);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            z-index: 2;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            border: 3px solid #5a0000;
+        }
+
+        .vinyl-label .track-number {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .vinyl-label .dnd {
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+            margin-top: 5px;
+        }
+
+        /* Обложка поверх пластинки */
+        .cover-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            overflow: hidden;
+            opacity: 0.9;
+            transition: opacity 0.5s;
+            z-index: 1;
+        }
+
+        .vinyl-container:hover .cover-overlay {
+            opacity: 0.2;
+        }
+
+        .cover-overlay img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Иголка проигрывателя */
+        .turntable-arm {
+            position: absolute;
+            top: -40px;
+            right: 40px;
+            width: 120px;
+            height: 120px;
+            transform-origin: right bottom;
+            transform: rotate(-30deg);
+            transition: transform 1.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            z-index: 3;
+        }
+
+        .vinyl-container.playing .turntable-arm {
+            transform: rotate(-10deg);
+        }
+
+        .arm {
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(to right, #444, #777, #444);
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            border-radius: 3px;
+        }
+
+        .arm-head {
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 20px;
+            height: 20px;
+            background: #333;
+            border-radius: 50%;
+            transform: rotate(45deg);
+        }
+
+        /* Плеер */
+        .player {
+            background-color: var(--bg-card);
+            border-radius: 15px;
+            padding: 2rem;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: var(--shadow);
+        }
+
+        .track-info {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .track-title {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            color: var(--accent-light);
+        }
+
+        .track-event {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        /* Элементы управления */
+        .controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+            margin: 2rem 0;
+        }
+
+        .control-btn {
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 1.8rem;
+            cursor: pointer;
+            transition: color 0.3s, transform 0.2s;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .control-btn:hover {
+            color: var(--accent-light);
+            transform: scale(1.1);
+        }
+
+        .control-btn.play-pause {
+            background-color: var(--accent);
+            color: white;
+            width: 60px;
+            height: 60px;
+            font-size: 1.8rem;
+        }
+
+        .control-btn.play-pause:hover {
+            background-color: var(--accent-light);
+        }
+
+        /* Прогресс-бар */
+        .progress-container {
+            margin: 1.5rem 0;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 5px;
+            background-color: #333;
+            border-radius: 5px;
+            cursor: pointer;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background-color: var(--accent);
+            width: 0%;
+            border-radius: 5px;
+            transition: width 0.1s;
+        }
+
+        .time-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        /* Правая колонка - текст и список треков */
+        .content-section {
+            flex: 1;
+            max-width: 600px;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        /* Секция с текстом */
+        .lyrics-container {
+            background-color: var(--bg-card);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: var(--shadow);
+            height: 400px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .lyrics-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(139, 0, 0, 0.3);
+        }
+
+        .lyrics-header h2 {
+            font-size: 1.5rem;
+            color: var(--accent-light);
+        }
+
+        .session-badge {
+            background-color: rgba(139, 0, 0, 0.2);
+            color: var(--accent-light);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .lyrics-content {
+            flex: 1;
+            overflow-y: auto;
+            line-height: 1.7;
+            white-space: pre-line;
+            padding-right: 10px;
+            font-size: 1.05rem;
+        }
+
+        /* Стилизация скроллбара */
+        .lyrics-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .lyrics-content::-webkit-scrollbar-track {
+            background: #222;
+            border-radius: 3px;
+        }
+
+        .lyrics-content::-webkit-scrollbar-thumb {
+            background: var(--accent);
+            border-radius: 3px;
+        }
+
+        /* Список треков */
+        .tracklist {
+            background-color: var(--bg-card);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+
+        .tracklist h2 {
+            color: var(--accent-light);
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            text-align: center;
+        }
+
+        .tracklist-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .track-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            background-color: rgba(30, 30, 30, 0.7);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+
+        .track-item:hover {
+            background-color: rgba(139, 0, 0, 0.1);
+            border-left-color: var(--accent);
+            transform: translateX(5px);
+        }
+
+        .track-item.active {
+            background-color: rgba(139, 0, 0, 0.2);
+            border-left-color: var(--accent-light);
+        }
+
+        .track-item-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent-light);
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .track-item-info {
+            flex: 1;
+        }
+
+        .track-item-title {
+            font-weight: 600;
+            margin-bottom: 0.2rem;
+        }
+
+        .track-item-event {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .track-item-duration {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Подвал */
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            margin-top: 2rem;
+            border-top: 1px solid rgba(139, 0, 0, 0.3);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .github-link {
+            color: var(--accent-light);
+            text-decoration: none;
+            margin-left: 5px;
+        }
+
+        .github-link:hover {
+            text-decoration: underline;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .vinyl-container {
+                width: 250px;
+                height: 250px;
+            }
+            
+            .vinyl-label {
+                width: 80px;
+                height: 80px;
+            }
+            
+            .track-title {
+                font-size: 1.5rem;
+            }
+            
+            .tracklist-items {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Шапка -->
+    <header class="header">
+        <h1>D&D Саундтрек</h1>
+        <p>Звуковая летопись кампании. Четыре истории, четыре трека.</p>
+    </header>
+
+    <!-- Основной контент -->
+    <main class="main-container">
+        <!-- Левая колонка - винил и плеер -->
+        <section class="vinyl-section">
+            <!-- Виниловая пластинка -->
+            <div class="vinyl-container" id="vinylContainer">
+                <div class="vinyl" id="vinyl">
+                    <div class="cover-overlay">
+                        <img src="images/cover1.jpg" alt="Обложка трека" id="coverImage">
+                    </div>
+                </div>
+                <div class="vinyl-label">
+                    <div class="track-number" id="vinylTrackNumber">1</div>
+                    <div class="dnd">D&D</div>
+                </div>
+                <div class="turntable-arm" id="turntableArm">
+                    <div class="arm"></div>
+                    <div class="arm-head"></div>
+                </div>
+            </div>
+
+            <!-- Плеер -->
+            <div class="player">
+                <div class="track-info">
+                    <h2 class="track-title" id="currentTrackTitle">Пролог: У врат Стального Ущелья</h2>
+                    <p class="track-event" id="currentTrackEvent">Сессия 1: Первая встреча и контракт</p>
+                </div>
+
+                <div class="controls">
+                    <button class="control-btn prev-btn" id="prevBtn" title="Предыдущий трек">
+                        <i class="fas fa-step-backward"></i>
+                    </button>
+                    <button class="control-btn play-pause" id="playPauseBtn" title="Воспроизвести/Пауза">
+                        <i class="fas fa-play" id="playPauseIcon"></i>
+                    </button>
+                    <button class="control-btn next-btn" id="nextBtn" title="Следующий трек">
+                        <i class="fas fa-step-forward"></i>
+                    </button>
+                </div>
+
+                <div class="progress-container">
+                    <div class="progress-bar" id="progressBar">
+                        <div class="progress" id="progress"></div>
+                    </div>
+                    <div class="time-info">
+                        <span id="currentTime">0:00</span>
+                        <span id="duration">0:00</span>
+                    </div>
+                </div>
+
+                <audio id="audioPlayer" preload="metadata">
+                    Ваш браузер не поддерживает аудио элементы.
+                </audio>
+            </div>
+        </section>
+
+        <!-- Правая колонка - текст и список треков -->
+        <section class="content-section">
+            <!-- Секция с текстом -->
+            <div class="lyrics-container">
+                <div class="lyrics-header">
+                    <h2>Летопись события</h2>
+                    <div class="session-badge" id="sessionBadge">Сессия 1</div>
+                </div>
+                <div class="lyrics-content" id="lyricsContent">
+                    Загрузка описания события...
+                </div>
+            </div>
+
+            <!-- Список треков -->
+            <div class="tracklist">
+                <h2>Все треки</h2>
+                <div class="tracklist-items" id="tracklist">
+                    <!-- Треки будут добавлены через JavaScript -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Подвал -->
+    <footer class="footer">
+        <p>Создано для нашей D&D кампании. Музыка и текст — оригинальные.</p>
+        <p>Выложено на <a href="https://github.com" class="github-link" target="_blank">GitHub</a></p>
+    </footer>
+
+    <script>
+        // ========== ДАННЫЕ О ТРЕКАХ ==========
+        // Тексты теперь загружаются из отдельных файлов
+        const tracks = [
+            {
+                id: 1,
+                title: "Пролог: У врат Стального Ущелья",
+                event: "Сессия 1: Первая встреча и контракт",
+                duration: "3:42",
+                audioFile: "audio/track1.mp3",
+                coverImage: "images/cover1.jpg",
+                session: "Сессия 1",
+                lyricsFile: "lyrics/track1.txt" // Текст загружается из файла
+            },
+            {
+                id: 2,
+                title: "Пляска Теней в Лабиринте Мха",
+                event: "Сессии 4-5: Схватка с культистами",
+                duration: "4:18",
+                audioFile: "audio/track2.mp3",
+                coverImage: "images/cover2.jpg",
+                session: "Сессии 4-5",
+                lyricsFile: "lyrics/track2.txt"
+            },
+            {
+                id: 3,
+                title: "Реквием по Павшему Гному",
+                event: "Сессия 7: Гибель Брюэна и клятва мести",
+                duration: "5:01",
+                audioFile: "audio/track3.mp3",
+                coverImage: "images/cover3.jpg",
+                session: "Сессия 7",
+                lyricsFile: "lyrics/track3.txt"
+            },
+            {
+                id: 4,
+                title: "Рассвет над Руинами Атар'Гула",
+                event: "Финал арки: Победа над узурпатором",
+                duration: "6:23",
+                audioFile: "audio/track4.mp3",
+                coverImage: "images/cover4.jpg",
+                session: "Финал арки",
+                lyricsFile: "lyrics/track4.txt"
+            }
+        ];
+
+        // ========== ПЕРЕМЕННЫЕ И ЭЛЕМЕНТЫ ==========
+        const audioPlayer = document.getElementById('audioPlayer');
+        const vinyl = document.getElementById('vinyl');
+        const vinylContainer = document.getElementById('vinylContainer');
+        const turntableArm = document.getElementById('turntableArm');
+        const coverImage = document.getElementById('coverImage');
+        const vinylTrackNumber = document.getElementById('vinylTrackNumber');
+        const currentTrackTitle = document.getElementById('currentTrackTitle');
+        const currentTrackEvent = document.getElementById('currentTrackEvent');
+        const sessionBadge = document.getElementById('sessionBadge');
+        const playPauseBtn = document.getElementById('playPauseBtn');
+        const playPauseIcon = document.getElementById('playPauseIcon');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const progressBar = document.getElementById('progressBar');
+        const progress = document.getElementById('progress');
+        const currentTimeEl = document.getElementById('currentTime');
+        const durationEl = document.getElementById('duration');
+        const lyricsContent = document.getElementById('lyricsContent');
+        const tracklist = document.getElementById('tracklist');
+
+        let currentTrackIndex = 0;
+        let isPlaying = false;
+
+        // ========== ИНИЦИАЛИЗАЦИЯ ==========
+        function init() {
+            // Создаем список треков
+            renderTracklist();
+            // Загружаем первый трек
+            loadTrack(currentTrackIndex);
+        }
+
+        // ========== ОТОБРАЖЕНИЕ СПИСКА ТРЕКОВ ==========
+        function renderTracklist() {
+            tracklist.innerHTML = '';
+            
+            tracks.forEach((track, index) => {
+                const trackItem = document.createElement('div');
+                trackItem.className = 'track-item';
+                if (index === currentTrackIndex) {
+                    trackItem.classList.add('active');
+                }
+                trackItem.dataset.index = index;
+                
+                trackItem.innerHTML = `
+                    <div class="track-item-number">${track.id}</div>
+                    <div class="track-item-info">
+                        <div class="track-item-title">${track.title}</div>
+                        <div class="track-item-event">${track.event}</div>
+                    </div>
+                    <div class="track-item-duration">${track.duration}</div>
+                `;
+                
+                trackItem.addEventListener('click', () => {
+                    loadTrack(index);
+                    playTrack();
+                });
+                
+                tracklist.appendChild(trackItem);
+            });
+        }
+
+        // ========== ЗАГРУЗКА ТРЕКА ==========
+        async function loadTrack(index) {
+            if (index < 0) index = tracks.length - 1;
+            if (index >= tracks.length) index = 0;
+            
+            currentTrackIndex = index;
+            const track = tracks[currentTrackIndex];
+            
+            // Обновляем информацию о треке
+            currentTrackTitle.textContent = track.title;
+            currentTrackEvent.textContent = track.event;
+            vinylTrackNumber.textContent = track.id;
+            sessionBadge.textContent = track.session;
+            
+            // Обновляем обложку
+            coverImage.src = track.coverImage;
+            coverImage.alt = `Обложка: ${track.title}`;
+            
+            // Загружаем аудио
+            audioPlayer.src = track.audioFile;
+            
+            // Загружаем текст из файла
+            await loadLyrics(track.lyricsFile);
+            
+            // Обновляем активный элемент в списке
+            document.querySelectorAll('.track-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            document.querySelector(`.track-item[data-index="${index}"]`).classList.add('active');
+            
+            // Если трек уже играл, продолжаем воспроизведение
+            if (isPlaying) {
+                playTrack();
+            } else {
+                // Иначе сбрасываем состояние
+                resetPlayback();
+            }
+        }
+
+        // ========== ЗАГРУЗКА ТЕКСТА ИЗ ФАЙЛА ==========
+        async function loadLyrics(filePath) {
+            try {
+                const response = await fetch(filePath);
+                if (!response.ok) {
+                    throw new Error(`Не удалось загрузить файл: ${filePath}`);
+                }
+                const text = await response.text();
+                lyricsContent.textContent = text;
+            } catch (error) {
+                console.error('Ошибка загрузки текста:', error);
+                lyricsContent.textContent = `Текст временно недоступен.\n\nФайл: ${filePath}\nОшибка: ${error.message}`;
+            }
+        }
+
+        // ========== УПРАВЛЕНИЕ ВОСПРОИЗВЕДЕНИЕМ ==========
+        function playTrack() {
+            isPlaying = true;
+            audioPlayer.play();
+            vinyl.classList.add('playing');
+            vinylContainer.classList.add('playing');
+            playPauseIcon.className = 'fas fa-pause';
+        }
+
+        function pauseTrack() {
+            isPlaying = false;
+            audioPlayer.pause();
+            vinyl.classList.remove('playing');
+            vinylContainer.classList.remove('playing');
+            playPauseIcon.className = 'fas fa-play';
+        }
+
+        function resetPlayback() {
+            pauseTrack();
+            progress.style.width = '0%';
+            currentTimeEl.textContent = '0:00';
+        }
+
+        // ========== ФОРМАТИРОВАНИЕ ВРЕМЕНИ ==========
+        function formatTime(seconds) {
+            if (isNaN(seconds)) return "0:00";
+            const mins = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+
+        // ========== ОБРАБОТЧИКИ СОБЫТИЙ ==========
+        // Кнопка воспроизведения/паузы
+        playPauseBtn.addEventListener('click', () => {
+            if (isPlaying) {
+                pauseTrack();
+            } else {
+                playTrack();
+            }
+        });
+
+        // Предыдущий трек
+        prevBtn.addEventListener('click', () => {
+            loadTrack(currentTrackIndex - 1);
+            playTrack();
+        });
+
+        // Следующий трек
+        nextBtn.addEventListener('click', () => {
+            loadTrack(currentTrackIndex + 1);
+            playTrack();
+        });
+
+        // Прогресс-бар
+        progressBar.addEventListener('click', (e) => {
+            const rect = progressBar.getBoundingClientRect();
+            const percent = (e.clientX - rect.left) / rect.width;
+            audioPlayer.currentTime = percent * audioPlayer.duration;
+        });
+
+        // События аудиоплеера
+        audioPlayer.addEventListener('loadedmetadata', () => {
+            durationEl.textContent = formatTime(audioPlayer.duration);
+        });
+
+        audioPlayer.addEventListener('timeupdate', () => {
+            const currentTime = audioPlayer.currentTime;
+            const duration = audioPlayer.duration;
+            const percent = (currentTime / duration) * 100;
+            
+            progress.style.width = `${percent}%`;
+            currentTimeEl.textContent = formatTime(currentTime);
+        });
+
+        audioPlayer.addEventListener('ended', () => {
+            // Автопереход к следующему треку
+            loadTrack(currentTrackIndex + 1);
+            playTrack();
+        });
+
+        // ========== ЗАПУСК ==========
+        // Инициализация при загрузке страницы
+        document.addEventListener('DOMContentLoaded', init);
+
+        // Предзагрузка первого текста для лучшего UX
+        window.addEventListener('load', () => {
+            if (tracks.length > 0) {
+                loadLyrics(tracks[0].lyricsFile);
+            }
+        });
+    </script>
+</body>
+</html>
