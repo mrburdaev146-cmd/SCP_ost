@@ -770,26 +770,33 @@
         }
 
         // ========== УПРАВЛЕНИЕ ГРОМКОСТЬЮ ==========
-        function updateVolume(value) {
-            // Преобразуем значение 0-100 в 0.0-1.0
-            const volume = value / 100;
-            audioPlayer.volume = volume;
-            volumeValue.textContent = `${value}%`;
-            
-            // Обновляем иконку в зависимости от уровня громкости
-            if (value === 0) {
-                volumeIcon.className = 'fas fa-volume-mute';
-            } else if (value < 30) {
-                volumeIcon.className = 'fas fa-volume-down';
-            } else if (value < 70) {
-                volumeIcon.className = 'fas fa-volume';
-            } else {
-                volumeIcon.className = 'fas fa-volume-up';
-            }
-            
-            // Сохраняем в localStorage
-            localStorage.setItem('dndPlayerVolume', value);
-        }
+ // ========== УПРАВЛЕНИЕ ГРОМКОСТЬЮ ==========
+function updateVolume(value) {
+    // Преобразуем значение 0-100 в 0.0-1.0
+    const volume = value / 100;
+    audioPlayer.volume = volume;
+    volumeValue.textContent = `${value}%`;
+    
+    // Обновляем иконку в зависимости от уровня громкости
+    // FontAwesome иконки:
+    // - fa-volume-mute: 🔇 (полностью выключено)
+    // - fa-volume-off: 🔈 (тихий звук)
+    // - fa-volume-down: 🔉 (средняя громкость)  
+    // - fa-volume-up: 🔊 (громко)
+    
+    if (value === 0) {
+        volumeIcon.className = 'fas fa-volume-mute';
+    } else if (value < 30) {
+        volumeIcon.className = 'fas fa-volume-off';  // 🔈
+    } else if (value < 70) {
+        volumeIcon.className = 'fas fa-volume-down';  // 🔉
+    } else {
+        volumeIcon.className = 'fas fa-volume-up';    // 🔊
+    }
+    
+    // Сохраняем в localStorage
+    localStorage.setItem('dndPlayerVolume', value);
+}
 
         // ========== ОТОБРАЖЕНИЕ СПИСКА ТРЕКОВ ==========
         function renderTracklist() {
