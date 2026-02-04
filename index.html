@@ -992,6 +992,40 @@ function updateVolume(value) {
                 loadLyrics(tracks[0].lyricsFile);
             }
         });
+    // ========== ОПТИМИЗАЦИЯ ЗАГРУЗКИ ==========
+// Предзагрузка аудио при старте
+function preloadAllAudio() {
+    console.log('Начинаю предзагрузку аудио...');
+    tracks.forEach((track, index) => {
+        setTimeout(() => {
+            const audio = new Audio();
+            audio.preload = 'metadata';
+            audio.src = track.audioFile;
+            console.log(`Предзагружен трек ${index + 1}: ${track.title}`);
+        }, index * 500); // Загружаем с задержкой
+    });
+}
+
+// Оптимизированная инициализация
+document.addEventListener('DOMContentLoaded', () => {
+    console.time('Инициализация страницы');
+    init();
+    preloadAllAudio();
+    console.timeEnd('Инициализация страницы');
+});
+
+// Скрываем прелоадер когда всё загружено
+window.addEventListener('load', () => {
+    console.log('Все ресурсы загружены');
+    // Если добавили прелоадер - скрываем его
+    const loader = document.getElementById('loading');
+    if (loader) {
+        loader.style.opacity = '0';
+        setTimeout(() => loader.style.display = 'none', 500);
+    }
+});
+
+        
     </script>
 </body>
 </html>
